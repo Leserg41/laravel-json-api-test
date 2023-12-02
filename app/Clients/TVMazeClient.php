@@ -5,26 +5,36 @@ namespace App\Clients;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\TVShowResource;
 use App\Models\TVShow;
+use App\Cache\FileCache;
 
 class TVMazeClient
 {
     const API_URL = 'https://api.tvmaze.com';
 
-    public function searchShowsByName (string $name): array
+    public function searchShowsByName(?string $name = null): array
     {
-        $shows = [];
-
-        $fileName = 'request-' . md5($name) .'.json';
-        $cacheFile = Storage::get($fileName);
-
-        $results = json_decode($cacheFile, TRUE);
+        $results = FileCache::get($name);
 
         if (!$results) 
         {
-            $results = $this->get(self::API_URL. '/search/shows?q=' . rawurlencode($name));
-            Storage::put($fileName, json_encode($results));    
+            $data = $this->get(self::API_URL. '/search/shows?q=' . rawurlencode($name));
+
+            FileCache::save($name, $data);
+
+            $results['data'] = $data;
         }
-        
+
+        return $this->filter($results['data'], $name);
+    }
+
+    private function cacheExpired (int $createdAtTimestamp): bool
+    {
+        return !(($createdAtTimestamp + self::CACHE_LIFETIME) > time());
+    }
+
+    private function filter(&$results, &$name): array 
+    {
+        $shows = [];
 
         if (is_array($results)) 
         {   
@@ -43,7 +53,7 @@ class TVMazeClient
         return $shows;
     }
 
-    private function get ($url)
+    private function get($url)
 	{
 		$ch = curl_init();
 
@@ -58,7 +68,8 @@ class TVMazeClient
 
 		$response = json_decode($result, TRUE);
 
-		if (is_array($response) && count($response) > 0 && (!isset($response['status']) || $response['status'] != '404')) {
+		if (is_array($response) && count($response) > 0 && (!isset($response['status']) || $response['status'] != '404')) 
+        {
 			return $response;
 		}
 		

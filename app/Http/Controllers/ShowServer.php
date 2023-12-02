@@ -17,6 +17,12 @@ class ShowServer extends Controller
 
     public function __invoke(Request $request)
     {
+        if (!$request->q) {
+            return response()->json([
+                'success' => false
+            ]);
+        }
+
         $collection = $this->tvMazeClient->searchShowsByName($request->q);
 
         return response()->json([
