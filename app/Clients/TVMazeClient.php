@@ -18,18 +18,12 @@ class TVMazeClient
         if (!$results) 
         {
             $data = $this->get(self::API_URL. '/search/shows?q=' . rawurlencode($name));
-
             FileCache::save($name, $data);
 
             $results['data'] = $data;
         }
 
         return $this->filter($results['data'], $name);
-    }
-
-    private function cacheExpired (int $createdAtTimestamp): bool
-    {
-        return !(($createdAtTimestamp + self::CACHE_LIFETIME) > time());
     }
 
     private function filter(&$results, &$name): array 
