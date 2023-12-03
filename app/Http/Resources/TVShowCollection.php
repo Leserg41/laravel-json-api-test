@@ -19,6 +19,7 @@ class TVShowCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
+            'success' => true, 
             'count' => $this->collection->count(),
             'data' => $this->collection
         ];

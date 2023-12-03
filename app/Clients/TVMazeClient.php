@@ -36,6 +36,7 @@ class TVMazeClient
             {
                 if (strpos ($series['show']['name'], strtolower ($name))) {
                     $shows[] = new TVShowResource(new TVShow($series['show']));
+                    continue;
                 }
 
                 if (strpos ($series['show']['name'], ucfirst (strtolower ($name)))) {

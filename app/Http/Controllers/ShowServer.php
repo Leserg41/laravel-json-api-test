@@ -19,9 +19,6 @@ class ShowServer extends Controller
     {
         $collection = $this->tvMazeClient->searchShowsByName($request->q);
 
-        return response()->json([
-            'success' => true, 
-            'shows' => new TVShowCollection($collection)
-        ]);
+        return response()->json(new TVShowCollection($collection));
     }
 }
