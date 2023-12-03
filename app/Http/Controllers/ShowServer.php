@@ -2,8 +2,8 @@
  
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Clients\TVMazeClient;
+use App\Http\Requests\SearchShowRequest;
 use App\Http\Resources\TVShowCollection;
 
 class ShowServer extends Controller
@@ -15,15 +15,8 @@ class ShowServer extends Controller
         $this->tvMazeClient = $TVMazeClient;
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(SearchShowRequest $request)
     {
-        if (!$request->q) 
-        {
-            return response()->json([
-                'success' => false
-            ]);
-        }
-
         $collection = $this->tvMazeClient->searchShowsByName($request->q);
 
         return response()->json([
