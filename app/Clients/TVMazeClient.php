@@ -68,6 +68,6 @@ class TVMazeClient
 			return $response;
 		}
 		
-		return false;
+		return [];
 	}
 }
